@@ -1,4 +1,4 @@
-/* TwemojiEverywhere, a Powercord plugin to apply twemoji to places not usually affected by it
+/* ModuleFinder, a powercord plugin to ease plugin development
  * Copyright (C) 2021 Vendicated
  *
  * TwemojiEveryhwere is free software: you can redistribute it and/or modify
@@ -6,13 +6,13 @@
  * by the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * TwemojiEverywhere is distributed in the hope that it will be useful,
+ * ModuleFinder is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with TwemojiEverywhere.  If not, see <https://www.gnu.org/licenses/>.
+ * along with ModuleFinder.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 const { Plugin } = require("powercord/entities");
