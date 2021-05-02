@@ -22,8 +22,6 @@ function find(key, search, caps = 0) {
   return !key.startsWith("_") && key.toLowerCase().includes(search) && key.charAt(0)[caps ? "toUpperCase" : "toLowerCase"]() === key.charAt(0);
 }
 
-const commands = ["findModules", "findComponents", "findConstants"];
-
 module.exports = class ModuleFinder extends Plugin {
   startPlugin() {
     powercord.api.commands.registerCommand({ command: "findmodules", executor: this.handleCommand.bind(this, this.findModules.bind(this, 0)) });
@@ -60,8 +58,8 @@ module.exports = class ModuleFinder extends Plugin {
   }
 
   pluginWillUnload() {
-    powercord.api.commands.unregisterCommand("findmodule");
-    powercord.api.commands.unregisterCommand("findcomponent");
-    powercord.api.commands.unregisterCommand("findconstant");
+    powercord.api.commands.unregisterCommand("findmodules");
+    powercord.api.commands.unregisterCommand("findconstants");
+    powercord.api.commands.unregisterCommand("findcomponents");
   }
 };
