@@ -27,73 +27,38 @@ module.exports = class ModuleFinder extends Plugin {
     powercord.api.commands.registerCommand({
       command: "findmodule",
       description: "Find modules by property",
-      executor: args => {
-        const search = args[0]?.toLowerCase();
-        if (!search)
-          return {
-            result: "ok"
-          };
-
-        const results = this.findModulesByProperty(search);
-
-        if (!results.length)
-          return {
-            result: "Nothing... It's only us two here"
-          };
-
-        return {
-          result: "```\n" + results.join("\n") + "```"
-        };
-      }
+      executor: this.handleCommand.bind(this, this.findModules)
     });
     powercord.api.commands.registerCommand({
       command: "findcomponent",
       description: "Find React components by DisplayName",
-      executor: args => {
-        const search = args[0]?.toLowerCase();
-        if (!search)
-          return {
-            result: "ok"
-          };
-
-        const results = this.findModulesByDisplayName(search);
-
-        if (!results.length)
-          return {
-            result: "Nothing... It's only us two here"
-          };
-
-        return {
-          result: "```\n" + results.join("\n") + "```"
-        };
-      }
+      executor: this.handleCommand.bind(this, this.findComponents)
     });
-
     powercord.api.commands.registerCommand({
       command: "findconstant",
       description: "Find constants",
-      executor: args => {
-        const search = args[0]?.toLowerCase();
-        if (!search)
-          return {
-            result: "ok"
-          };
-
-        const results = this.findConstants(search);
-
-        if (!results.length)
-          return {
-            result: "Nothing... It's only us two here"
-          };
-
-        return {
-          result: "```\n" + results.join("\n") + "```"
-        };
-      }
+      executor: this.handleCommand.bind(this, this.findConstants)
     });
   }
 
-  findModulesByDisplayName(search) {
+  handleCommand(fn, args) {
+    const search = args[0]?.toLowerCase();
+    if (!search)
+      return {
+        result: "ok"
+      };
+
+    const results = fn(search);
+    if (!results.length)
+      return {
+        result: "Nothing... It's only us two here"
+      };
+    return {
+      result: "```\n" + results.join("\n") + "```"
+    };
+  }
+
+  findComponents(search) {
     return getAllModules(m => !m.displayName?.startsWith("_") && m.displayName?.toLowerCase().includes(search), false).map(f => f.displayName);
   }
 
@@ -107,7 +72,7 @@ module.exports = class ModuleFinder extends Plugin {
       .filter(Boolean);
   }
 
-  findModulesByProperty(search) {
+  findModules(search) {
     return getAllModules(m => Object.keys(m).some(k => find(k, search)) || (m.__proto__ && Object.keys(m.__proto__).some(k => find(k, search))))
       .flatMap(v =>
         Object.keys(v)
