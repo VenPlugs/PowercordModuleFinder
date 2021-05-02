@@ -22,33 +22,20 @@ function find(key, search, caps = 0) {
   return !key.startsWith("_") && key.toLowerCase().includes(search) && key.charAt(0)[caps ? "toUpperCase" : "toLowerCase"]() === key.charAt(0);
 }
 
+const commands = ["findModules", "findComponents", "findConstants"];
+
 module.exports = class ModuleFinder extends Plugin {
-  async startPlugin() {
-    powercord.api.commands.registerCommand({
-      command: "findmodule",
-      description: "Find modules by property",
-      executor: this.handleCommand.bind(this, this.findModules)
-    });
-    powercord.api.commands.registerCommand({
-      command: "findcomponent",
-      description: "Find React components by DisplayName",
-      executor: this.handleCommand.bind(this, this.findComponents)
-    });
-    powercord.api.commands.registerCommand({
-      command: "findconstant",
-      description: "Find constants",
-      executor: this.handleCommand.bind(this, this.findConstants)
-    });
+  startPlugin() {
+    powercord.api.commands.registerCommand({ command: "findmodules", executor: this.handleCommand.bind(this, this.findModules.bind(this, 0)) });
+    powercord.api.commands.registerCommand({ command: "findconstants", executor: this.handleCommand.bind(this, this.findModules.bind(this, 1)) });
+    powercord.api.commands.registerCommand({ command: "findcomponents", executor: this.handleCommand.bind(this, this.findComponents) });
   }
 
   handleCommand(fn, args) {
-    const search = args[0]?.toLowerCase();
-    if (!search)
-      return {
-        result: "ok"
-      };
+    if (!args.length) return { result: "ok" };
 
-    const results = fn(search);
+    const results = fn(args[0].toLowerCase());
+
     if (!results.length)
       return {
         result: "Nothing... It's only us two here"
@@ -62,22 +49,12 @@ module.exports = class ModuleFinder extends Plugin {
     return getAllModules(m => !m.displayName?.startsWith("_") && m.displayName?.toLowerCase().includes(search), false).map(f => f.displayName);
   }
 
-  findConstants(search) {
-    return getAllModules(m => Object.keys(m).some(k => find(k, search, 1)) || (m.__proto__ && Object.keys(m.__proto__).some(k => find(k, search, 1))))
+  findModules(upper, search) {
+    return getAllModules(m => Object.keys(m).some(k => find(k, search, upper)) || (m.__proto__ && Object.keys(m.__proto__).some(k => find(k, search, upper))))
       .flatMap(v =>
         Object.keys(v)
-          .filter(k => find(k, search, 1))
-          .concat(v.__proto__ ? Object.keys(v.__proto__).filter(k => find(k, search, 1)) : [])
-      )
-      .filter(Boolean);
-  }
-
-  findModules(search) {
-    return getAllModules(m => Object.keys(m).some(k => find(k, search)) || (m.__proto__ && Object.keys(m.__proto__).some(k => find(k, search))))
-      .flatMap(v =>
-        Object.keys(v)
-          .filter(k => find(k, search))
-          .concat(v.__proto__ ? Object.keys(v.__proto__).filter(k => find(k, search)) : [])
+          .filter(k => find(k, search, upper))
+          .concat(v.__proto__ ? Object.keys(v.__proto__).filter(k => find(k, search, upper)) : [])
       )
       .filter(Boolean);
   }
