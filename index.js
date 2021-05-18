@@ -1,7 +1,7 @@
 /* ModuleFinder, a powercord plugin to ease plugin development
  * Copyright (C) 2021 Vendicated
  *
- * TwemojiEveryhwere is free software: you can redistribute it and/or modify
+ * ModuleFinder is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published
  * by the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
@@ -18,28 +18,33 @@
 const { Plugin } = require("powercord/entities");
 const { getAllModules } = require("powercord/webpack");
 
+function unique(arr, fn) {
+  const hist = {};
+  const seen = Object.prototype.hasOwnProperty.bind(hist);
+  return arr.filter(item => {
+    const key = fn?.(item) ?? item;
+    return seen(key) ? false : (hist[key] = true);
+  });
+}
+
 function find(key, search, caps = 0) {
   return !key.startsWith("_") && key.toLowerCase().includes(search) && key.charAt(0)[caps ? "toUpperCase" : "toLowerCase"]() === key.charAt(0);
 }
 
 module.exports = class ModuleFinder extends Plugin {
   startPlugin() {
-    powercord.api.commands.registerCommand({ command: "findmodules", executor: this.handleCommand.bind(this, this.findModules.bind(this, 0)) });
-    powercord.api.commands.registerCommand({ command: "findconstants", executor: this.handleCommand.bind(this, this.findModules.bind(this, 1)) });
-    powercord.api.commands.registerCommand({ command: "findcomponents", executor: this.handleCommand.bind(this, this.findComponents) });
+    powercord.api.commands.registerCommand({ command: "findmodules", executor: this.handleCommand.bind(null, this.findModules.bind(null, 0)) });
+    powercord.api.commands.registerCommand({ command: "findconstants", executor: this.handleCommand.bind(null, this.findModules.bind(null, 1)) });
+    powercord.api.commands.registerCommand({ command: "findcomponents", executor: this.handleCommand.bind(null, this.findComponents) });
   }
 
   handleCommand(fn, args) {
     if (!args.length) return { result: "ok" };
 
-    const results = fn(args[0].toLowerCase());
+    const results = unique(fn(args[0].toLowerCase()));
 
-    if (!results.length)
-      return {
-        result: "Nothing... It's only us two here"
-      };
     return {
-      result: "```\n" + results.join("\n") + "```"
+      result: results.length ? "```\n" + results.join("\n") + "```" : "Nothing... It's only us two here"
     };
   }
 
