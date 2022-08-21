@@ -27,6 +27,10 @@ module.exports = class ModuleFinder extends Plugin {
     powercord.api.commands.registerCommand({ command: "findmodules", executor: this.handleCommand.bind(null, this.findModules.bind(null, 0)) });
     powercord.api.commands.registerCommand({ command: "findconstants", executor: this.handleCommand.bind(null, this.findModules.bind(null, 1)) });
     powercord.api.commands.registerCommand({ command: "findcomponents", executor: this.handleCommand.bind(null, this.findComponents) });
+
+    window.findModule = this.findModules.bind(null, 0);
+    window.findConstant = this.findModules.bind(null, 1);
+    window.findComponent = this.findComponents.bind(null);
   }
 
   handleCommand(fn, args) {
@@ -57,5 +61,9 @@ module.exports = class ModuleFinder extends Plugin {
     powercord.api.commands.unregisterCommand("findmodules");
     powercord.api.commands.unregisterCommand("findconstants");
     powercord.api.commands.unregisterCommand("findcomponents");
+
+    delete window.findModule;
+    delete window.findConstant;
+    delete window.findComponent;
   }
 };
